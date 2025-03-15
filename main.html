@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Embed Designer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="https://rubyclient.lol/ruby_big.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        discord: {
+                            light: '#7289DA',
+                            dark: '#5865F2'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen font-['Inter'] dark:bg-gray-900 transition-colors duration-200">
+    <div class="container mx-auto p-4">
+        <header class="text-center mb-8 relative">
+            <button id="themeToggle" class="absolute right-4 top-0 px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                <i class="fas fa-sun dark:hidden"></i>
+                <i class="fas fa-moon hidden dark:inline"></i>
+            </button>
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">Discord Embed Designer</h1>
+            <p class="text-gray-600 dark:text-gray-300">Design your embed and get JDA code instantly</p>
+        </header>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="w-full lg:w-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <form id="embedForm" class="space-y-6">
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Author</h2>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Author Name</label>
+                            <input type="text" id="authorName" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Author Icon URL</label>
+                            <input type="url" id="authorIcon" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Embed Content</h2>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+                            <input type="text" id="embedTitle" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                            <textarea id="embedDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Color</label>
+                            <input type="color" id="embedColor" class="mt-1 h-10 w-full rounded-md border-gray-300 dark:border-gray-600">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Media</h2>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Thumbnail URL</label>
+                            <input type="url" id="thumbnailUrl" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image URL</label>
+                            <input type="url" id="imageUrl" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Fields</h2>
+                            <button type="button" id="addField" class="px-4 py-2 bg-discord-light dark:bg-discord-dark text-white rounded-md hover:bg-opacity-90">
+                                Add Field
+                            </button>
+                        </div>
+                        <div id="fieldsContainer" class="space-y-4">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Footer</h2>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Footer Text</label>
+                            <input type="text" id="footerText" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Footer Icon URL</label>
+                            <input type="url" id="footerIcon" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="addTimestamp" class="rounded text-discord-light dark:text-discord-dark">
+                            <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Add Timestamp</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+
+            <div class="w-full lg:w-1/2 space-y-8">
+                <div class="bg-[#36393f] rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold text-white mb-4">Live Preview</h2>
+                    <div id="embedPreview" class="rounded-lg overflow-hidden">
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">JDA Code</h2>
+                        <button id="copyCode" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                            Copy Code
+                        </button>
+                    </div>
+                    <pre id="codeOutput" class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto"></pre>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-gray-600 dark:text-gray-400">
+            <p class="flex items-center justify-center gap-2">
+                <img src="https://rubyclient.lol/ruby_big.png" alt="Ruby Logo" class="w-6 h-6">
+                Created by <a href="https://rubyclient.lol/" class="text-discord-light dark:text-discord-dark hover:underline" target="_blank">Ruby Development Team</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        let fieldCount = 0;
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        document.getElementById('addField').addEventListener('click', () => {
+            const fieldsContainer = document.getElementById('fieldsContainer');
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'field-group space-y-2';
+            fieldDiv.innerHTML = `
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Field Name</label>
+                        <input type="text" class="field-name mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Field Value</label>
+                        <input type="text" class="field-value mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-discord-light dark:focus:border-discord-dark focus:ring-discord-light dark:focus:ring-discord-dark dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" class="remove-field px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="field-inline rounded text-discord-light dark:text-discord-dark">
+                        <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Inline Field</span>
+                    </label>
+                </div>
+            `;
+            fieldsContainer.appendChild(fieldDiv);
+
+            fieldDiv.querySelector('.remove-field').addEventListener('click', () => {
+                fieldDiv.remove();
+                updatePreview();
+            });
+
+            fieldDiv.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+
+            fieldCount++;
+            updatePreview();
+        });
+
+        function updatePreview() {
+            const preview = document.getElementById('embedPreview');
+            const color = document.getElementById('embedColor').value;
+            
+            const embed = document.createElement('div');
+            embed.className = 'embed-container';
+            embed.style.borderLeft = `4px solid ${color}`;
+            embed.style.backgroundColor = '#2f3136';
+            embed.style.padding = '0.5rem 1rem';
+            embed.style.color = '#dcddde';
+
+            const authorName = document.getElementById('authorName').value;
+            const authorIcon = document.getElementById('authorIcon').value;
+            if (authorName) {
+                const author = document.createElement('div');
+                author.className = 'flex items-center gap-2 mb-2';
+                if (authorIcon) {
+                    const icon = document.createElement('img');
+                    icon.src = authorIcon;
+                    icon.className = 'w-6 h-6 rounded-full';
+                    author.appendChild(icon);
+                }
+                const name = document.createElement('span');
+                name.textContent = authorName;
+                name.style.color = '#ffffff';
+                name.style.fontSize = '0.875rem';
+                author.appendChild(name);
+                embed.appendChild(author);
+            }
+
+            const title = document.getElementById('embedTitle').value;
+            if (title) {
+                const titleElem = document.createElement('div');
+                titleElem.textContent = title;
+                titleElem.style.color = '#ffffff';
+                titleElem.style.fontSize = '1rem';
+                titleElem.style.fontWeight = 'bold';
+                titleElem.style.marginBottom = '0.5rem';
+                embed.appendChild(titleElem);
+            }
+
+            const description = document.getElementById('embedDescription').value;
+            if (description) {
+                const descElem = document.createElement('div');
+                descElem.textContent = description;
+                descElem.style.marginBottom = '0.5rem';
+                embed.appendChild(descElem);
+            }
+
+            const fields = document.querySelectorAll('.field-group');
+            if (fields.length > 0) {
+                const fieldsContainer = document.createElement('div');
+                fieldsContainer.className = 'grid grid-cols-3 gap-4 mb-4';
+                
+                fields.forEach(field => {
+                    const name = field.querySelector('.field-name').value;
+                    const value = field.querySelector('.field-value').value;
+                    const inline = field.querySelector('.field-inline').checked;
+
+                    if (name && value) {
+                        const fieldElem = document.createElement('div');
+                        fieldElem.className = inline ? 'col-span-1' : 'col-span-3';
+                        
+                        const fieldName = document.createElement('div');
+                        fieldName.textContent = name;
+                        fieldName.style.color = '#ffffff';
+                        fieldName.style.fontSize = '0.875rem';
+                        fieldName.style.fontWeight = 'bold';
+                        fieldName.style.marginBottom = '0.25rem';
+                        
+                        const fieldValue = document.createElement('div');
+                        fieldValue.textContent = value;
+                        fieldValue.style.fontSize = '0.875rem';
+                        
+                        fieldElem.appendChild(fieldName);
+                        fieldElem.appendChild(fieldValue);
+                        fieldsContainer.appendChild(fieldElem);
+                    }
+                });
+                
+                embed.appendChild(fieldsContainer);
+            }
+
+            const imageUrl = document.getElementById('imageUrl').value;
+            if (imageUrl) {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.className = 'max-w-full h-auto rounded-lg mb-4';
+                embed.appendChild(img);
+            }
+
+            const thumbnailUrl = document.getElementById('thumbnailUrl').value;
+            if (thumbnailUrl) {
+                const thumbnail = document.createElement('img');
+                thumbnail.src = thumbnailUrl;
+                thumbnail.className = 'w-16 h-16 rounded-lg float-right';
+                embed.insertBefore(thumbnail, embed.firstChild);
+            }
+
+            const footerText = document.getElementById('footerText').value;
+            const footerIcon = document.getElementById('footerIcon').value;
+            const timestamp = document.getElementById('addTimestamp').checked;
+            
+            if (footerText || footerIcon || timestamp) {
+                const footer = document.createElement('div');
+                footer.className = 'flex items-center gap-2 mt-2';
+                footer.style.fontSize = '0.75rem';
+                footer.style.color = '#72767d';
+
+                if (footerIcon) {
+                    const icon = document.createElement('img');
+                    icon.src = footerIcon;
+                    icon.className = 'w-4 h-4 rounded-full';
+                    footer.appendChild(icon);
+                }
+
+                if (footerText) {
+                    const text = document.createElement('span');
+                    text.textContent = footerText;
+                    footer.appendChild(text);
+                }
+
+                if (timestamp) {
+                    const time = document.createElement('span');
+                    time.textContent = new Date().toLocaleString();
+                    if (footerText) {
+                        const separator = document.createElement('span');
+                        separator.textContent = ' • ';
+                        footer.appendChild(separator);
+                    }
+                    footer.appendChild(time);
+                }
+
+                embed.appendChild(footer);
+            }
+
+            preview.innerHTML = '';
+            preview.appendChild(embed);
+
+            updateCode();
+        }
+
+        function updateCode() {
+            const codeOutput = document.getElementById('codeOutput');
+            let code = 'EmbedBuilder embed = new EmbedBuilder();\n';
+
+            const authorName = document.getElementById('authorName').value;
+            const authorIcon = document.getElementById('authorIcon').value;
+            if (authorName) {
+                code += `embed.setAuthor("${authorName}"${authorIcon ? `, "${authorIcon}"` : ''});\n`;
+            }
+
+            const title = document.getElementById('embedTitle').value;
+            if (title) {
+                code += `embed.setTitle("${title}");\n`;
+            }
+
+            const description = document.getElementById('embedDescription').value;
+            if (description) {
+                code += `embed.setDescription("${description}");\n`;
+            }
+
+            const color = document.getElementById('embedColor').value;
+            if (color) {
+                const rgb = hexToRgb(color);
+                code += `embed.setColor(new Color(${rgb.r}, ${rgb.g}, ${rgb.b}));\n`;
+            }
+
+            const thumbnailUrl = document.getElementById('thumbnailUrl').value;
+            if (thumbnailUrl) {
+                code += `embed.setThumbnail("${thumbnailUrl}");\n`;
+            }
+
+            const imageUrl = document.getElementById('imageUrl').value;
+            if (imageUrl) {
+                code += `embed.setImage("${imageUrl}");\n`;
+            }
+
+            const fields = document.querySelectorAll('.field-group');
+            fields.forEach(field => {
+                const name = field.querySelector('.field-name').value;
+                const value = field.querySelector('.field-value').value;
+                const inline = field.querySelector('.field-inline').checked;
+                if (name && value) {
+                    code += `embed.addField("${name}", "${value}", ${inline});\n`;
+                }
+            });
+
+            const footerText = document.getElementById('footerText').value;
+            const footerIcon = document.getElementById('footerIcon').value;
+            if (footerText) {
+                code += `embed.setFooter("${footerText}"${footerIcon ? `, "${footerIcon}"` : ''});\n`;
+            }
+
+            const timestamp = document.getElementById('addTimestamp').checked;
+            if (timestamp) {
+                code += 'embed.setTimestamp(Instant.now());\n';
+            }
+
+            code += '\nreturn embed.build();';
+            codeOutput.textContent = code;
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        document.querySelectorAll('#embedForm input, #embedForm textarea').forEach(input => {
+            input.addEventListener('input', updatePreview);
+        });
+
+        document.getElementById('copyCode').addEventListener('click', () => {
+            const code = document.getElementById('codeOutput').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const button = document.getElementById('copyCode');
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy Code';
+                }, 2000);
+            });
+        });
+
+        updatePreview();
+    </script>
+</body>
+</html>
