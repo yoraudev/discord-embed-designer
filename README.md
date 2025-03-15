@@ -12,7 +12,7 @@ A web-based tool to visually design Discord embeds and generate corresponding JD
 
 ## Usage
 
-1.  Open the [Discord Embed Designer]([https://yoraudev.github.io/discord-embed-designer/]).
+1.  Open the [Discord Embed Designer](https://yoraudev.github.io/discord-embed-designer/).
 2.  Fill in the form fields to customize your embed.
 3.  Observe the live preview for real-time updates.
 4.  Copy the generated JDA code to your clipboard.
